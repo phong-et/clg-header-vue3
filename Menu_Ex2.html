@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Your Vue App</title>
+    <script src="https://unpkg.com/vue@3"></script>
+</head>
+
+<body>
+
+    <div id="app" tag-parent="a"></div>
+
+    <script>
+        const { createApp, ref, onMounted, computed, onBeforeMount } = Vue;
+        const app = createApp({
+            setup() {
+                const appElementId = ref(null);
+
+                onBeforeMount(() => {
+                    // Access the element's ID before the component is mounted
+                    console.log('Before mount - Element ID:', appElementId.value);
+                });
+
+                onMounted(() => {
+                    // Access the element's ID after the component is mounted
+                    console.log('Mounted - Element ID:', appElementId.value);
+                });
+
+                return {
+                    appElementId,
+                    // ... your other setup properties
+                };
+            },
+        });
+
+        onMounted(() => {
+            // Access the root component instance inside onMounted
+            console.log('Root component instance:', appInstance._container.__vue__);
+        });
+        // Mount the app to the element with id "app"
+        const appInstance = app.mount("#app");
+
+        // Access the element's ID from the app instance
+        console.log('After mount - Element ID:', appInstance.appElementId);
+
+
+       
+    </script>
+
+</body>
+
+</html>

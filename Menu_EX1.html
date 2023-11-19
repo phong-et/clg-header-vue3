@@ -1,0 +1,68 @@
+<!-- <!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Your Vue App</title>
+  <script src="https://unpkg.com/vue@3"></script>
+</head>
+
+<body>
+
+  <div id="app" data-message="Hello from HTML">
+    {{ message }}
+  </div>
+  <script>
+    const mountEl = document.querySelector("#app");
+    Vue.createApp({
+      props: ["message"]
+
+    }, { ...mountEl.dataset }).mount("#app");
+  </script>
+
+</body>
+
+</html> -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Your Vue App</title>
+  <script src="https://unpkg.com/vue@3"></script>
+</head>
+<body>
+
+<div id="app" data-message="Hello from HTML">
+  {{ message }}
+</div>
+
+<script>
+  const mountEl = document.querySelector("#app");
+
+  const app = Vue.createApp({
+    setup() {
+      const message = Vue.ref("");
+
+      // Access the data attribute and set it to the 'message' data property
+      Vue.onBeforeMount(() => {
+        message.value = mountEl.dataset.message;
+        console.log(mountEl.dataset.message)
+      });
+
+      return { message };
+    },
+    template: `
+      <div>
+        {{ message }}
+      </div>
+    `
+  });
+
+  app.mount(mountEl);
+</script>
+
+</body>
+</html>
+

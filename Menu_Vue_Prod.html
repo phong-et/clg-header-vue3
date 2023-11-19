@@ -1,0 +1,28 @@
+﻿<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8" />
+    <title></title>
+</head>
+
+<body>
+    <div id="main-menu" tag-parent-sub-menu="li" data-id="main-menu">
+        <menu-item name="sport" class-name="nav" href="#aaa">
+            <template v-slot:image-item>
+                <image-item class-name="mm" name="afb"
+                            src="https://liga365.com/Images/logo.png?v=6" version="1" />
+            </template>
+            <template v-slot:arrow>
+                <arrow type="text" :key="5" />
+            </template>
+        </menu-item>
+    </div>
+    <script src="js/jquery-1.7.1.min.js"></script>
+    <script src="js/vue3.3.7.global.js"></script>
+    <script>const mountEl = document.querySelector("#main-menu");</script>
+    <script src="js/header.menu.vue.js"></script>
+    <script>menu.mount("#main-menu");</script>
+</body>
+
+</html>
