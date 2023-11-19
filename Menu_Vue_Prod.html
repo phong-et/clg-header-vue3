@@ -6,24 +6,29 @@
     <title></title>
 </head>
 
-<body>
-
-    <ul style="background-color: #eee;" id="main-menu" tag-parent-sub-menu="li" data-id="main-menu">
-        <menu-item v-for="(key, index) in Object.keys(menus)" :class-name="menus[key][0].GameMenuDisplayName" name="aa"
-            href="#" onclick-handler="aa" :has-subMenu="menus[key].length > 0" is-guest="true" :key="key">
-            <template #image>
-                <image-item class-name="mm" :cache-version="12343" :image-data="menus[key][0]"
-                    :key="index"></image-item>
-            </template>
-
-            <template #arrow>
-                <arrow type="text" :key="key"></arrow>
-            </template>
-            <template #submenu>
-
-            </template>
-        </menu-item>
-
+<body style="background:#ccc">
+    <ul style="background-color: #eee;" id="main-menu" tag-parent-sub-menu="li" data-id="main-menu"
+        data-is-guest="true">
+        <li v-for="(key, index) in Object.keys(menus)">
+            <menu-item class-name="nav" is-guest="true" href="#" :has-sub-menu="menus[key].length > 0"
+                :name="menus[key][0].GameType" :key="key">
+                <template #image>
+                    <image-item class-name="mm" :cache-version="12343" :image-data="menus[key][0]"
+                        :key="index"></image-item>
+                </template>
+                
+                <template #arrow>
+                    <down-arrow type="text" :key="key"></down-arrow>
+                </template>
+                <template #submenu>
+                    <submenu-container :name="menus[key][0].GameType">
+                        <li v-for="(record, index) in menus[key]">
+                            <image-item class-name="mm" :cache-version="12343" :image-data="record" :key="index" />
+                        </li>
+                    </submenu-container>
+                </template>
+            </menu-item>
+        </li>
     </ul>
     <script src="js/jquery-1.7.1.min.js"></script>
     <script src="js/vue3.3.7.global.js"></script>

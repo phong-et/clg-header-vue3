@@ -26,6 +26,8 @@ function getTimestampServerCache() {
   }
   return 0;
 }
+
+let addPrefix = (variableName) => (isNaN(variableName.substring(0, 1)) ? '' : '_');
 // Vue App and Components part
 const { createApp, ref, onMounted, computed, onBeforeMount } = Vue;
 const SpanArrow = {
@@ -37,7 +39,7 @@ const DivArrow = {
 const TextArrow = {
   template: '▼',
 };
-const Arrow = {
+const DowArrow = {
   props: ['type'],
   components: {
     SpanArrow,
@@ -96,17 +98,20 @@ const MenuItem = {
     'name',
     'className',
     'href',
-    'title',
     'target',
     'onclickHandler',
     'hasSubMenu',
     'isGuest',
   ],
   computed: {
-    formattedClass: () =>
-      `${this.className ? this.className : ''} _${this.name}_game`,
+    formattedClass() {
+      let prefix = addPrefix(this.name);
+      return `${
+        this.className ? this.className : ''
+      } ${prefix}${this.name.toLowerCase()}-game`;
+    },
   },
-  template: `<a :title="name" :href="href" :class="formattedClass" :title="title">
+  template: `<a :href="href" :class="formattedClass">
                 <slot name="image"></slot>
                 <slot></slot>
                 <slot name="arrow"></slot>
@@ -116,17 +121,19 @@ const MenuItem = {
 const SubMenuContainer = {
   props: ['name'],
   computed: {
-    id: () => 'sub-menu-' + this.name,
+    id() {
+      return 'sub-menu-' + this.name.toLowerCase();
+    },
   },
   template: `
-                <div :id="id" class="sub-menu">
-                    <div class="main_width">
-                    <ul class="gameNav">
-                        <slot></slot>
-                    </ul>
-                    </div>
-                </div>
-            `,
+      <div :id="id" class="sub-menu">
+          <div class="main_width">
+          <ul class="gameNav">
+              <slot></slot>
+          </ul>
+          </div>
+      </div>
+  `,
 };
 const SubMenuItem = {
   props: ['text', 'href', 'target', 'onclickHandler', 'isGuest', 'src'],
@@ -136,13 +143,13 @@ const SubMenuItem = {
     },
   },
   template: `
-                <li>
-                    <a style="background:none!important" :href=href>
-                        <img :alt="text" :title="text" :src=src />
-                        {{text}}
-                    </a>
-                </li>
-            `,
+    <li>
+        <a style="background:none!important" :href=href>
+            <img :alt="text" :title="text" :src=src />
+            {{text}}
+        </a>
+    </li>
+  `,
 };
 const ImageMenuItem = {
   props: [
@@ -187,11 +194,10 @@ function createMenu() {
     },
     setup() {
       let data = ref({});
-      let array = [1, 2, 3, 4, 5, 6, 7, 8, 9];
       let dataFetched = ref(false);
       let appId = ref('');
-      let message = ref('message');
       let cacheVersion = ref(0);
+      let isGuest = ref(true);
       const fetchMenuData = (callback) => {
         const apiUrl = 'public/GameGen.json?cmd=GetHeaderMenuGames';
         $.ajax({
@@ -200,10 +206,10 @@ function createMenu() {
           success: function (response) {
             if (response && response.success) {
               let menuMap = groupBy(response.menus, 'GameType');
+              if (isGuest) delete menuMap['ALLGAMES'];
               localStorage.setItem('menuMap', JSON.stringify(menuMap));
               Object.assign(data.value, menuMap);
               dataFetched.value = true;
-              console.log(JSON.stringify(menuMap));
               if (typeof callback === 'function') {
                 callback(response);
               }
@@ -222,9 +228,9 @@ function createMenu() {
           .getAttribute('tag-parent-sub-menu');
         let htmlStyles = ``;
         for (const gameType in menuMap) {
-          htmlStyles += `${tagParentSubMenu}._${gameType.toLowerCase()}_game:hover > #sub-menu-${gameType.toLowerCase()} {display: inline-block}\r\n`;
+          htmlStyles += `${tagParentSubMenu}.${addPrefix(gameType)}${gameType.toLowerCase()}-game:hover > #sub-menu-${gameType.toLowerCase()} {display: inline-block}\r\n`;
         }
-        console.log(htmlStyles);
+        //console.log(htmlStyles);
         const styleElement = document.createElement('style');
         styleElement.textContent = htmlStyles;
         document.body.appendChild(styleElement);
@@ -232,32 +238,31 @@ function createMenu() {
 
       onMounted(() => {
         cacheVersion.value = getTimestampServerCache();
-        console.log(cacheVersion.value);
+        Object.assign(data.value, JSON.parse(localStorage.getItem('menuMap')));
         fetchMenuData((response) => {
-          console.log('Menu data fetched:', response);
           genStyleSubMenu(data.value, appId.value);
         });
       });
       onBeforeMount(() => {
         appId.value = mountEl.dataset.id;
-        console.log(mountEl.dataset.id);
+        isGuest = mountEl.dataset.isGuest;
+        //console.log(mountEl.dataset.id);
+        //console.log(mountEl.dataset.isGuest);
       });
       const computedProps = {};
       return {
         menus: data.value,
+        dataFetched,
         ...computedProps,
         fetchMenuData,
-        dataFetched,
-        array,
         genStyleSubMenu,
-        message,
       };
     },
   });
 }
 var menu = createMenu();
 menu.component('image-item', ImageItem);
-menu.component('arrow', Arrow);
+menu.component('down-arrow', DowArrow);
 menu.component('menu-item', MenuItem);
 menu.component('submenu-container', SubMenuContainer);
 menu.component('submenu', SubMenuItem);
