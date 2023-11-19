@@ -7,44 +7,24 @@
 </head>
 
 <body>
-    <!-- <li>
-            <menu-item name="sport" class-name="nav" href="#aaa">
-                <template #image>
-                    <image-item class-name="mm" name="afb" src="https://liga365.com/Images/logo.png?v=6" version="1" />
-                </template>
-                aaaa
-                <template #arrow>
-                    <arrow type="text" :key="5" />
-                </template>
-            </menu-item>
-        </li> -->
+
     <ul style="background-color: #eee;" id="main-menu" tag-parent-sub-menu="li" data-id="main-menu">
-        <!-- <image-item class-name="mm" :cache-version="12343" 
-            :image-data="{Id:9131,CTId:271,GameMenuDisplayName:'SPORTS',GameType:'AFBSB',HGameId:1065,GameName:'SPORT',OrderId:1,HasSubGame:!0,ImageType:'png',HeaderLastUpdatedTime:'/Date(1691145759513)/',SubMenuLastUpdatedTime:'/Date(1691152834253)/'}" />
-        -->
-        <menu-item v-for="(key, index) in Object.keys(menus)" 
-            :class-name="menus[key][0].GameMenuDisplayName" 
-            name="aa"
-            href="#"
-            onclick-handler="aa"
-            :has-subMenu="menus[key].length > 0"
-            is-guest="true"
-            :key="key"  
-        >
+        <menu-item v-for="(key, index) in Object.keys(menus)" :class-name="menus[key][0].GameMenuDisplayName" name="aa"
+            href="#" onclick-handler="aa" :has-subMenu="menus[key].length > 0" is-guest="true" :key="key">
             <template #image>
-                <image-item class-name="mm" :cache-version="12343":image-data="menus[key][0]" :key="index"></image-item>
+                <image-item class-name="mm" :cache-version="12343" :image-data="menus[key][0]"
+                    :key="index"></image-item>
             </template>
-            
+
             <template #arrow>
                 <arrow type="text" :key="key"></arrow>
             </template>
             <template #submenu>
-               qqqqq
+
             </template>
         </menu-item>
-        
-        
-    </ul> 
+
+    </ul>
     <script src="js/jquery-1.7.1.min.js"></script>
     <script src="js/vue3.3.7.global.js"></script>
     <script>const mountEl = document.querySelector("#main-menu");</script>
