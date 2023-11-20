@@ -26,8 +26,8 @@ function getTimestampServerCache() {
   }
   return 0;
 }
-
-let addPrefix = (variableName) => (isNaN(variableName.substring(0, 1)) ? '' : '_');
+let addPrefix = (variableName) =>
+  isNaN(variableName.substring(0, 1)) ? '' : '_';
 // Vue App and Components part
 const { createApp, ref, onMounted, computed, onBeforeMount } = Vue;
 const SpanArrow = {
@@ -39,7 +39,7 @@ const DivArrow = {
 const TextArrow = {
   template: '▼',
 };
-const DowArrow = {
+const DownArrow = {
   props: ['type'],
   components: {
     SpanArrow,
@@ -76,6 +76,10 @@ const ImageItem = {
       type: Object,
       required: true,
     },
+    isSubmenu: {
+      type: Boolean,
+      required: false,
+    },
   },
   computed: {
     src() {
@@ -87,11 +91,15 @@ const ImageItem = {
       var serverTimeStamp = +this.cacheVersion;
       var latestTimestamp =
         dbTimestamp > serverTimeStamp ? dbTimestamp : serverTimeStamp;
-      let srcImage = `${staticImageHost}/headergames/${this.imageData.CTId}/MenuIcon_${this.imageData.GameType}.${this.imageData.ImageType}?v=${latestTimestamp}`;
+      let srcImage = '';
+      if (!this.isSubmenu)
+        srcImage = `${staticImageHost}/headergames/${this.imageData.CTId}/MenuIcon_${this.imageData.GameType}.${this.imageData.ImageType}?v=${latestTimestamp}`;
+      else
+        srcImage = `${staticImageHost}/headergames/SubMenuIcon_${this.imageData.HGameId}_${this.imageData.GameName}.${this.imageData.ImageType}?v=${latestTimestamp}`;
       return srcImage;
     },
   },
-  template: `<img :class="className" :src="src" :alt="imageData.GameMenuDisplayName" :title="imageData.GameMenuDisplayName" />`,
+  template: `<img :class="className" :src="src" :alt="imageData.GameMenuDisplayName"/>`,
 };
 const MenuItem = {
   props: [
@@ -136,54 +144,33 @@ const SubMenuContainer = {
   `,
 };
 const SubMenuItem = {
-  props: ['text', 'href', 'target', 'onclickHandler', 'isGuest', 'src'],
+  props: ['name', 'type', 'target', 'isGuest', 'username'],
   computed: {
     href() {
-      return this.value;
+      if (this.isGuest) return '#';
+      switch (this.type.toLowerCase()) {
+        case 'afbsb':
+          switch (this.name.toLowerCase()) {
+            case 'liga sb':
+              return 'Ajax/LIGASB_TSW.ashx?u=' + this.username;
+            case 'sport':
+              return '_View/RMOdds1.aspx';
+            default:
+              return '#';
+          }
+      }
+    },
+    formattedTarget() {
+      return this.href == '#' ? '' : 'fraMain';
     },
   },
   template: `
     <li>
-        <a style="background:none!important" :href=href>
-            <img :alt="text" :title="text" :src=src />
-            {{text}}
+        <a style="background:none!important" :href="href" :target="formattedTarget">
+            <slot></slot>
+            {{name}}
         </a>
     </li>
-  `,
-};
-const ImageMenuItem = {
-  props: [
-    'text',
-    'href',
-    'icon',
-    'className',
-    'src',
-    'arrow',
-    'isIcon',
-    'version',
-  ],
-  components: {
-    SpanArrow,
-    DivArrow,
-  },
-  methods: {
-    getArrowComponent() {
-      switch (this.arrow) {
-        case 'span':
-          return SpanArrow;
-        case 'div':
-          return DivArrow;
-        default:
-          return null;
-      }
-    },
-  },
-  template: `
-    <a :href="href" :class="className">
-        <img :class="className" :src="formattedSrc" :alt="text" :title="text" />
-        {{text}}
-        <component :is="getArrowComponent()" v-if="arrow !== 'none'"></component>
-    </a>
   `,
 };
 
@@ -228,7 +215,9 @@ function createMenu() {
           .getAttribute('tag-parent-sub-menu');
         let htmlStyles = ``;
         for (const gameType in menuMap) {
-          htmlStyles += `${tagParentSubMenu}.${addPrefix(gameType)}${gameType.toLowerCase()}-game:hover > #sub-menu-${gameType.toLowerCase()} {display: inline-block}\r\n`;
+          htmlStyles += `${tagParentSubMenu}.${addPrefix(
+            gameType
+          )}${gameType.toLowerCase()}-game:hover > #sub-menu-${gameType.toLowerCase()} {display: inline-block}\r\n`;
         }
         //console.log(htmlStyles);
         const styleElement = document.createElement('style');
@@ -237,7 +226,7 @@ function createMenu() {
       };
 
       onMounted(() => {
-        cacheVersion.value = getTimestampServerCache();
+        
         Object.assign(data.value, JSON.parse(localStorage.getItem('menuMap')));
         fetchMenuData((response) => {
           genStyleSubMenu(data.value, appId.value);
@@ -245,7 +234,8 @@ function createMenu() {
       });
       onBeforeMount(() => {
         appId.value = mountEl.dataset.id;
-        isGuest = mountEl.dataset.isGuest;
+        isGuest.value = mountEl.dataset.isGuest;
+        cacheVersion.value = getTimestampServerCache();
         //console.log(mountEl.dataset.id);
         //console.log(mountEl.dataset.isGuest);
       });
@@ -254,6 +244,8 @@ function createMenu() {
         menus: data.value,
         dataFetched,
         ...computedProps,
+        cacheVersion,
+        isGuest,
         fetchMenuData,
         genStyleSubMenu,
       };
@@ -262,7 +254,7 @@ function createMenu() {
 }
 var menu = createMenu();
 menu.component('image-item', ImageItem);
-menu.component('down-arrow', DowArrow);
+menu.component('down-arrow', DownArrow);
 menu.component('menu-item', MenuItem);
 menu.component('submenu-container', SubMenuContainer);
-menu.component('submenu', SubMenuItem);
+menu.component('submenu-item', SubMenuItem);
