@@ -102,15 +102,27 @@ const ImageItem = {
   template: `<img :class="className" :src="src" :alt="imageData.GameMenuDisplayName"/>`,
 };
 const MenuItem = {
-  props: [
-    'name',
-    'className',
-    'href',
-    'target',
-    'onclickHandler',
-    'hasSubMenu',
-    'isGuest',
-  ],
+  props: {
+    name: String,
+    className: String,
+    href: String,
+    target: String,
+    onclickHandler: Function,
+    hasSubMenu: Boolean,
+    isGuest: Boolean,
+    hasImageSlot: {
+      type: Boolean,
+      default: true,
+    },
+    hasArrowSlot: {
+      type: Boolean,
+      default: true,
+    },
+    hasSubmenuSlot: {
+      type: Boolean,
+      default: true,
+    },
+  },
   computed: {
     formattedClass() {
       let prefix = addPrefix(this.name);
@@ -120,10 +132,9 @@ const MenuItem = {
     },
   },
   template: `<a :href="href" :class="formattedClass">
-                <slot name="image"></slot>
-                <slot></slot>
-                <slot name="arrow"></slot>
-                <slot v-if="hasSubMenu === true" name="submenu"></slot>
+                <slot v-if="hasImageSlot" name="image"></slot>
+                <slot v-if="hasArrowSlot" name="arrow"></slot>
+                <slot v-if="hasSubmenuSlot && hasSubMenu === true" name="submenu"></slot>
             </a>`,
 };
 const SubMenuContainer = {

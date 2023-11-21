@@ -12,22 +12,16 @@
         <li v-for="(key, index) in Object.keys(menus)">
             <menu-item class-name="nav" is-guest="true" href="#" :has-sub-menu="menus[key].length > 0"
                 :name="menus[key][0].GameType" :key="key">
-                <template #image>
-                    <image-item class-name="mm" :image-data="menus[key][0]" :key="index" :cache-version="cacheVersion" />
-                </template>
-
-                <template #arrow>
-                    <down-arrow type="text" :key="key"></down-arrow>
-                </template>
-                <template #submenu>
-                    <submenu-container :name="menus[key][0].GameType">
-                        <submenu-item v-for="(record, index) in menus[key]" 
-                            :type="record.GameType" :is-guest="isGuest"
-                            :name="record.GameName">
-                            <image-item :image-data="record" :key="index" :is-submenu="true" :cache-version="cacheVersion" />
-                        </submenu-item>
-                    </submenu-container>
-                </template>
+                <down-arrow type="text" :key="key"></down-arrow>
+                <image-item class-name="mm" :image-data="menus[key][0]" :key="index" :cache-version="cacheVersion"></image-item>
+                {{menus[key][0].GameMenuDisplayName}}
+                <submenu-container :name="menus[key][0].GameType">
+                    <submenu-item v-for="(record, index) in menus[key]" 
+                        :type="record.GameType" :is-guest="isGuest"
+                        :name="record.GameName">
+                        <image-item :image-data="record" :key="index" :is-submenu="true" :cache-version="cacheVersion" />
+                    </submenu-item>
+                </submenu-container>
             </menu-item>
         </li>
     </ul>
