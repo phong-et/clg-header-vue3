@@ -102,50 +102,38 @@ const ImageItem = {
   template: `<img :class="className" :src="src" :alt="imageData.GameMenuDisplayName"/>`,
 };
 const MenuItem = {
-  props: {
-    name: String,
-    className: String,
-    href: String,
-    target: String,
-    onclickHandler: Function,
-    hasSubMenu: Boolean,
-    isGuest: Boolean,
-    hasImageSlot: {
-      type: Boolean,
-      default: true,
+    props: {
+        name: String,
+        className: String,
+        href: String,
+        target: String,
+        onclickHandler: Function,
+        hasSubMenu: Boolean,
+        isGuest: Boolean,
     },
-    hasArrowSlot: {
-      type: Boolean,
-      default: true,
+    computed: {
+        formattedClass() {
+            let prefix = addPrefix(this.name);
+            return `${this.className ? this.className : ''
+                } ${prefix}${this.name.toLowerCase()}-game`;
+        },
     },
-    hasSubmenuSlot: {
-      type: Boolean,
-      default: true,
-    },
-  },
-  computed: {
-    formattedClass() {
-      let prefix = addPrefix(this.name);
-      return `${
-        this.className ? this.className : ''
-      } ${prefix}${this.name.toLowerCase()}-game`;
-    },
-  },
-  template: `<a :href="href" :class="formattedClass">
-                <slot v-if="hasImageSlot" name="image"></slot>
-                <slot v-if="hasArrowSlot" name="arrow"></slot>
-                <slot v-if="hasSubmenuSlot && hasSubMenu === true" name="submenu"></slot>
+    template: `<a :href="href" :class="formattedClass">
+                <slot></slot>
             </a>`,
 };
 const SubMenuContainer = {
-  props: ['name'],
-  computed: {
-    id() {
-      return 'sub-menu-' + this.name.toLowerCase();
+    props: ['name', 'className'],
+    computed: {
+        id() {
+            return 'sub-menu-' + this.name.toLowerCase();
+        },
+        formattedClass() {
+            return `sub-menu ${this.className || ''}`;
+        },
     },
-  },
-  template: `
-      <div :id="id" class="sub-menu">
+    template: `
+      <div :id="id" :class="formattedClass">
           <div class="main_width">
           <ul class="gameNav">
               <slot></slot>
@@ -155,27 +143,27 @@ const SubMenuContainer = {
   `,
 };
 const SubMenuItem = {
-  props: ['name', 'type', 'target', 'isGuest', 'username'],
-  computed: {
-    href() {
-      if (this.isGuest) return '#';
-      switch (this.type.toLowerCase()) {
-        case 'afbsb':
-          switch (this.name.toLowerCase()) {
-            case 'liga sb':
-              return 'Ajax/LIGASB_TSW.ashx?u=' + this.username;
-            case 'sport':
-              return '_View/RMOdds1.aspx';
-            default:
-              return '#';
-          }
-      }
+    props: ['name', 'type', 'target', 'isGuest', 'username'],
+    computed: {
+        href() {
+            if (this.isGuest) return '#';
+            switch (this.type.toLowerCase()) {
+                case 'afbsb':
+                    switch (this.name.toLowerCase()) {
+                        case 'liga sb':
+                            return 'Ajax/LIGASB_TSW.ashx?u=' + this.username;
+                        case 'sport':
+                            return '_View/RMOdds1.aspx';
+                        default:
+                            return '#';
+                    }
+            }
+        },
+        formattedTarget() {
+            return this.href == '#' ? '' : 'fraMain';
+        },
     },
-    formattedTarget() {
-      return this.href == '#' ? '' : 'fraMain';
-    },
-  },
-  template: `
+    template: `
     <li>
         <a style="background:none!important" :href="href" :target="formattedTarget">
             <slot></slot>
@@ -245,8 +233,8 @@ function createMenu() {
       });
       onBeforeMount(() => {
         appId.value = mountEl.dataset.id;
-        isGuest.value = mountEl.dataset.isGuest;
-        cacheVersion.value = getTimestampServerCache();
+        isGuest.value = mountEl.dataset.isGuest === 'true';
+        cacheVersion.value = +getTimestampServerCache();
         //console.log(mountEl.dataset.id);
         //console.log(mountEl.dataset.isGuest);
       });
